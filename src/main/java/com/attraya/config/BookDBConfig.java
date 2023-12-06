@@ -20,33 +20,31 @@ import java.util.Map;
 
 @Configuration
 @EnableTransactionManagement
-@EnableJpaRepositories(entityManagerFactoryRef = "entityManagerFactory",
-        basePackages = {"com.attraya.user.repository"},
-        transactionManagerRef = "transactionManager")
-public class UserDBConfig {
+@EnableJpaRepositories(entityManagerFactoryRef = "bookEntityManagerFactory",
+        basePackages = {"com.attraya.book.repository"},
+        transactionManagerRef = "bookTransactionManager")
+public class BookDBConfig {
 
-    @Primary
-    @Bean(name = "datasource")
-    @ConfigurationProperties(prefix = "spring.user.datasource")
+    @Bean(name = "bookDatasource")
+    @ConfigurationProperties(prefix = "spring.book.datasource")
     public DataSource dataSource() {
         return DataSourceBuilder.create().build();
     }
 
-    @Primary
-    @Bean(name = "entityManagerFactory")
+
+    @Bean(name = "bookEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean entityManagerFactoryBean(EntityManagerFactoryBuilder builder,
-                                                                           @Qualifier("datasource") DataSource dataSource) {
+                                                                           @Qualifier("bookDatasource") DataSource dataSource) {
         Map<String, Object> properties = new HashMap<>();
         properties.put("hibernate.hbm2ddl.auto", "update");
         properties.put("hibernate.dialect", "org.hibernate.dialect.MYSQL5Dialect");
-        return builder.dataSource(dataSource).properties(properties).packages("com.attraya.model.user")
+        return builder.dataSource(dataSource).properties(properties).packages("com.attraya.model.book")
                 .persistenceUnit("User").build();
     }
 
-    @Primary
-    @Bean(name = "transactionManager")
-    public PlatformTransactionManager transactionManager(@Qualifier("entityManagerFactory")EntityManagerFactory entityManagerFactory){
+
+    @Bean(name = "bookTransactionManager")
+    public PlatformTransactionManager transactionManager(@Qualifier("bookEntityManagerFactory") EntityManagerFactory entityManagerFactory){
         return new JpaTransactionManager(entityManagerFactory);
     }
-
 }
